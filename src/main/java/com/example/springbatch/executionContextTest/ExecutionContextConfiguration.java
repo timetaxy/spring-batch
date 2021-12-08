@@ -17,9 +17,9 @@ public class ExecutionContextConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final ExecutionContextTasklet1 executionContextTasklet1;
-    private final ExecutionContextTasklet1 executionContextTasklet2;
-    private final ExecutionContextTasklet1 executionContextTasklet3;
-    private final ExecutionContextTasklet1 executionContextTasklet4;
+    private final ExecutionContextTasklet2 executionContextTasklet2;
+    private final ExecutionContextTasklet3 executionContextTasklet3;
+    private final ExecutionContextTasklet4 executionContextTasklet4;
 
     @Bean
     public Job job() {
