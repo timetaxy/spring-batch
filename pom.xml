@@ -21,6 +21,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-batch</artifactId>
 		</dependency>
+		<!-- web과 관련된 의존성 추가 (비동기처리) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.h2database</groupId>
