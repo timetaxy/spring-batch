@@ -38,13 +38,16 @@ public class jobLauncherController {
                 .addDate("date", new Date())
                 .toJobParameters();
 
-        // 비동기 방식 (스프링배치가 초기화 되면서 작동 함)
-//      SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+
         // 동기 방식
-//      Throwable targetException = var6.getTargetException(); 아래와 같이 돌리면 타입 캐스팅이 발생합니다.
-        SimpleJobLauncher jobLauncher = (SimpleJobLauncher)simpleJobLauncher;
-        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+//        SimpleJobLauncher jobLauncher = (SimpleJobLauncher)simpleJobLauncher;
         jobLauncher.run(job, jobParameters);
+        // 비동기 방식 (스프링배치가 초기화 되면서 작동 함)
+//      Throwable targetException = var6.getTargetException(); 아래와 같이 돌리면 타입 캐스팅이 발생합니다.
+//        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+//        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+//        jobLauncher.run(job, jobParameters);
 
         return "batch completed";
     }
