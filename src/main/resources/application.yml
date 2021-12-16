@@ -34,6 +34,7 @@ spring:
       enabled: true
     jdbc:
       initialize-schema: always
+#      table-prefix: SYSTEM_
 #  batch:
 #    jdbc:
 #      initialize-schema: always

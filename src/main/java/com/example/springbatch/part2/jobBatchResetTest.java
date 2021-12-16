@@ -20,7 +20,7 @@ public class jobBatchResetTest {
     private final StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Job job() {
+    public Job batchJob1() {
         return jobBuilderFactory.get("batchJob1")
                 .incrementer(new RunIdIncrementer()) // 동일 파라미터인데 다시 실행하고 싶을때 사용하라는 의미로 RunIdIncrementer를 제공
                 .start(step1())
