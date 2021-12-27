@@ -25,9 +25,9 @@ public class IncrementerTest {
     @Bean
     public Job batchJob() {
         return jobBuilderFactory.get("batchJob")
+                .incrementer(new RunIdIncrementer()) // 동일 파라미터인데 다시 실행하고 싶을때 사용하라는 의미로 RunIdIncrementer를 제공
                 .start(step1())
                 .next(step2())
-                .incrementer(new RunIdIncrementer()) // 동일 파라미터인데 다시 실행하고 싶을때 사용하라는 의미로 RunIdIncrementer를 제공
 //                .incrementer(new CustomJobParametersIncrementer())
                 .build();
     }
