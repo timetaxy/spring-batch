@@ -30,42 +30,66 @@ public class TaskletStepConfiguration {
     @Bean
     public Job batchJob() {
         return jobBuilderFactory.get("batchJob")
-                .incrementer(new RunIdIncrementer()) // 동일 파라미터인데 다시 실행하고 싶을때 사용하라는 의미로 RunIdIncrementer를 제공
-                .start(chunkStep())
+//                .incrementer(new RunIdIncrementer()) // 동일 파라미터인데 다시 실행하고 싶을때 사용하라는 의미로 RunIdIncrementer를 제공
+                .start(step1())
+                .next(step2())
                 .build();
     }
 
+//    @Bean
+//    public Step taskStep() {
+//        return stepBuilderFactory.get("taskStep")
+//                .tasklet(new CustomTasklet())
+//                .build();
+//    }
     @Bean
-    public Step taskStep() {
-        return stepBuilderFactory.get("taskStep")
+    public Step step1() {
+        return stepBuilderFactory.get("step1")
                 .tasklet(new Tasklet() {
                     @Override
                     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println("step was executed");
+                        System.out.println("stepContribution = " + contribution + ", ChunkContext = " + chunkContext);
                         return RepeatStatus.FINISHED;
                     }
                 })
+                .allowStartIfComplete(true) // job이 성공하거나 실패하거나 무조건 실행되게함 BATCH_STEP_EXECUTION에 저장
                 .build();
     }
 
     @Bean
-    public Step chunkStep() {
-        return stepBuilderFactory.get("chunkStep")
-                .<String, String>chunk(10)
-                .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3", "item4", "item5")))
-                .processor(new ItemProcessor<String, String>() {
+    public Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet(new Tasklet() {
                     @Override
-                    public String process(String item) throws Exception {
-                        return item.toUpperCase();
+                    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                        System.out.println("stepContribution = " + contribution + ", ChunkContext = " + chunkContext);
+                        throw new RuntimeException("step2 was failed");
+//                        return RepeatStatus.FINISHED;
                     }
                 })
-                .writer(new ItemWriter<String>() {
-                    @Override
-                    public void write(List<? extends String> items) throws Exception {
-                        items.forEach(item -> System.out.println(item));
-                    }
-                })
+                .startLimit(3)  // step 3번째까지 실행되고 네번째부터 발생함 (BATCH_JOB_EXECUTION에는 저장되고 아래의 메시지를 출력하고, BATCH_STEP_EXECUTION에는 저장안됨
+                // org.springframework.batch.core.StartLimitExceededException: Maximum start limit exceeded for step: step2StartMax: 3
                 .build();
     }
+
+//    @Bean
+//    public Step chunkStep() {
+//        return stepBuilderFactory.get("chunkStep")
+//                .<String, String>chunk(10)
+//                .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3", "item4", "item5")))
+//                .processor(new ItemProcessor<String, String>() {
+//                    @Override
+//                    public String process(String item) throws Exception {
+//                        return item.toUpperCase();
+//                    }
+//                })
+//                .writer(new ItemWriter<String>() {
+//                    @Override
+//                    public void write(List<? extends String> items) throws Exception {
+//                        items.forEach(item -> System.out.println(item));
+//                    }
+//                })
+//                .build();
+//    }
 
 }
