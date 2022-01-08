@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @RequiredArgsConstructor
-public class transitionConfiguration {
+public class TransitionConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -32,7 +32,7 @@ public class transitionConfiguration {
 //                .next(step2())
 //                .build();
 //    }
-    
+
     //flow작업
     @Bean
     public Job batchJob() {
