@@ -9,4 +9,4 @@
 - [x] Transition 배치상태 유형 이해 BatchStatus / ExitStatus / FlowExecutionStatus 및 flow 실습 (TransitionConfiguration.java)
 - [x] Transition Flow 흐름도 on() / to() / stop(), fail(), end(), stopAndRestart() 실습 (TransitionFlowJobConfiguration.java)
 - [x] ExitStatus를 통한 StepExecutionListener 실습 (CustomExitStatusConfiguration.java) 
-- [x] Decider를 통합 JobExecutionDecider실습 (JobExecutionDeciderConfiguration.java)
+- [x] Decider를 통한 JobExecutionDecider실습 (JobExecutionDeciderConfiguration.java)
