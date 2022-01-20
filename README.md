@@ -12,3 +12,9 @@
 - [x] Decider를 통한 JobExecutionDecider실습 (JobExecutionDeciderConfiguration.java)
 - [x] Flow를 활용한 SimpleFlow 실습 (SimpleFlowConfiguration.java)
 - [x] @JobScope / @StepScope 실습 (JobScope_StepScope_Configuration.java)
+
+## 2022-01-16 ~ 2022-01-17 Chunk
+- [x] Chunk 실습
+
+## 실전! 스프링 배치 어플리케이션 개발 (2022-01-21)
+- [x] fileJob을 통해 csv파일을 읽어들어 DB 적재 실습
