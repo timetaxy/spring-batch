@@ -27,7 +27,7 @@ public class ApiJobConfiguration {
     @Bean
     public Job apiJob() {
         return jobBuilderFactory.get("apiJob")
-                .listener(new JobListener())
+                .listener(new JobListener()) // 시간 확인
                 .start(apiStep1())
                 .next(jobStep)
                 .next(apiStep2())
