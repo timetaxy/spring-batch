@@ -12,5 +12,8 @@ public class JobListener implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
 
+        // 시간 측정
+        long time = jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime();
+        System.out.println("총 소요시간 : " + time);
     }
 }

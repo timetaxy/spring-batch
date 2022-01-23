@@ -1,19 +1,34 @@
 package com.example.springbatch.project.batch.job.api;
 
+import com.example.springbatch.project.batch.chunk.processor.ApiItemProcessor1;
+import com.example.springbatch.project.batch.chunk.processor.ApiItemProcessor2;
+import com.example.springbatch.project.batch.chunk.processor.ApiItemProcessor3;
+import com.example.springbatch.project.batch.chunk.writer.ApiItemWriter1;
+import com.example.springbatch.project.batch.chunk.writer.ApiItemWriter2;
+import com.example.springbatch.project.batch.chunk.writer.ApiItemWriter3;
+import com.example.springbatch.project.batch.classifier.ProcessClassifier;
+import com.example.springbatch.project.batch.classifier.WriterClassifier;
+import com.example.springbatch.project.batch.domain.ApiRequestVO;
 import com.example.springbatch.project.batch.domain.ProductVO;
 import com.example.springbatch.project.batch.partition.ProductPartitioner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
+import org.springframework.batch.item.support.ClassifierCompositeItemProcessor;
+import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -29,7 +44,7 @@ public class ApiStepConfiguration {
     private int chunkSize = 10;
 
     @Bean
-    public Step apiMasterStep() {
+    public Step apiMasterStep() throws Exception {
         return stepBuilderFactory.get("apiMasterStep")
                 .partitioner(apiSlaveStep().getName(), partitioner()) // 멀티쓰레드를 위한 파티셔너 사용
                 .step(apiSlaveStep()) // 복제
@@ -37,6 +52,16 @@ public class ApiStepConfiguration {
                 .taskExecutor(taskExecutor()) // 멀티쓰레드위한 taskExecutor
                 .build();
 
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(3); // 쓰레드 생성수 3개
+        taskExecutor.setMaxPoolSize(6);
+        taskExecutor.setThreadNamePrefix("api-thread-");
+
+        return taskExecutor;
     }
 
     @Bean
@@ -67,7 +92,7 @@ public class ApiStepConfiguration {
         reader.setRowMapper(new BeanPropertyRowMapper<>(ProductVO.class));
 
         MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider();
-        queryProvider.setSelectClause("id, name, price, tpye");
+        queryProvider.setSelectClause("id, name, price, type");
         queryProvider.setFromClause("from product");
         queryProvider.setWhereClause("where type = :type");
 
@@ -80,7 +105,47 @@ public class ApiStepConfiguration {
         reader.afterPropertiesSet();
 
         return reader;
+    }
 
+    @Bean
+    public ItemProcessor itemProcessor() {
+        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> processor
+                = new ClassifierCompositeItemProcessor<>();
 
+        ProcessClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier
+                = new ProcessClassifier();
+
+        // 인자로 만들어서 전달
+        Map<String, ItemProcessor<ProductVO, ApiRequestVO>> processorMap = new HashMap<>();
+        processorMap.put("1", new ApiItemProcessor1());
+        processorMap.put("2", new ApiItemProcessor2());
+        processorMap.put("3", new ApiItemProcessor3());
+
+        classifier.setProcessorMap(processorMap);
+
+        processor.setClassifier(classifier);
+
+        return processor;
+    }
+
+    @Bean
+    public ItemWriter itemWriter() {
+        ClassifierCompositeItemWriter<ApiRequestVO> writer
+                = new ClassifierCompositeItemWriter<>();
+
+        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier
+                = new WriterClassifier();
+
+        // 인자로 만들어서 전달
+        Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
+        writerMap.put("1", new ApiItemWriter1());
+        writerMap.put("2", new ApiItemWriter2());
+        writerMap.put("3", new ApiItemWriter3());
+
+        classifier.setWriterMapMap(writerMap);
+
+        writer.setClassifier(classifier);
+
+        return writer;
     }
 }
