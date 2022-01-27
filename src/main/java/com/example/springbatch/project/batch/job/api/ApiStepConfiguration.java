@@ -11,6 +11,9 @@ import com.example.springbatch.project.batch.classifier.WriterClassifier;
 import com.example.springbatch.project.batch.domain.ApiRequestVO;
 import com.example.springbatch.project.batch.domain.ProductVO;
 import com.example.springbatch.project.batch.partition.ProductPartitioner;
+import com.example.springbatch.project.service.ApiService1;
+import com.example.springbatch.project.service.ApiService2;
+import com.example.springbatch.project.service.ApiService3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -40,18 +43,23 @@ public class ApiStepConfiguration {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private final ApiService1 apiService1;
+    private final ApiService2 apiService2;
+    private final ApiService3 apiService3;
 
     private int chunkSize = 10;
 
     @Bean
     public Step apiMasterStep() throws Exception {
-        return stepBuilderFactory.get("apiMasterStep")
-                .partitioner(apiSlaveStep().getName(), partitioner()) // 멀티쓰레드를 위한 파티셔너 사용
-                .step(apiSlaveStep()) // 복제
-                .gridSize(3)
-                .taskExecutor(taskExecutor()) // 멀티쓰레드위한 taskExecutor
-                .build();
 
+        ProductVO[] productList = QueryGenerator.getProductList(dataSource);
+
+        return stepBuilderFactory.get("apiMasterStep")
+                .partitioner(apiSlaveStep().getName(), partitioner())
+                .step(apiSlaveStep())
+                .gridSize(productList.length)
+                .taskExecutor(taskExecutor())
+                .build();
     }
 
     @Bean
@@ -66,6 +74,7 @@ public class ApiStepConfiguration {
 
     @Bean
     public Step apiSlaveStep() throws Exception {
+
         return stepBuilderFactory.get("apiSlaveStep")
                 .<ProductVO, ProductVO>chunk(chunkSize) // jpa로 사용하지않고 jdbc 사용 <데이터를 읽어오기 위한 도메인 객체, 쓰기도 마찬가지 도메인 객체>
                 .reader(itemReader(null))
@@ -89,7 +98,7 @@ public class ApiStepConfiguration {
 
         reader.setDataSource(dataSource);
         reader.setPageSize(chunkSize);
-        reader.setRowMapper(new BeanPropertyRowMapper<>(ProductVO.class));
+        reader.setRowMapper(new BeanPropertyRowMapper(ProductVO.class));
 
         MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider();
         queryProvider.setSelectClause("id, name, price, type");
@@ -109,11 +118,9 @@ public class ApiStepConfiguration {
 
     @Bean
     public ItemProcessor itemProcessor() {
-        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> processor
-                = new ClassifierCompositeItemProcessor<>();
+        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> processor = new ClassifierCompositeItemProcessor<>();
 
-        ProcessClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier
-                = new ProcessClassifier();
+        ProcessClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new ProcessClassifier();
 
         // 인자로 만들어서 전달
         Map<String, ItemProcessor<ProductVO, ApiRequestVO>> processorMap = new HashMap<>();
@@ -138,9 +145,9 @@ public class ApiStepConfiguration {
 
         // 인자로 만들어서 전달
         Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
-        writerMap.put("1", new ApiItemWriter1());
-        writerMap.put("2", new ApiItemWriter2());
-        writerMap.put("3", new ApiItemWriter3());
+        writerMap.put("1", new ApiItemWriter1(apiService1));
+        writerMap.put("2", new ApiItemWriter2(apiService2));
+        writerMap.put("3", new ApiItemWriter3(apiService3));
 
         classifier.setWriterMapMap(writerMap);
 

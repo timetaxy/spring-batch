@@ -19,7 +19,7 @@ public class ApiJobChildConfiguration {
     private final JobLauncher jobLauncher;
 
     @Bean
-    public Step jobStep() {
+    public Step jobStep() throws Exception {
         return stepBuilderFactory.get("jobStep")
                 .job(childJob())
                 .launcher(jobLauncher)
@@ -27,7 +27,7 @@ public class ApiJobChildConfiguration {
     }
 
     @Bean
-    public Job childJob() {
+    public Job childJob() throws Exception {
         return jobBuilderFactory.get("childJob")
                 .start(apiMasterStep)
                 .build();
