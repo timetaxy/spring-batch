@@ -15,7 +15,7 @@ public class QueryGenerator {
 
     public static ProductVO[] getProductList(DataSource dataSource){
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        List<ProductVO> productList = jdbcTemplate.query("select type from product group by type", new ProductRowMapper() {
+        List<ProductVO> productList = jdbcTemplate.query("select type as type from product group by type", new ProductRowMapper() {
             // 타입만 가져오기 별도 정의
             @Override
             public ProductVO mapRow(ResultSet rs, int rowNum) throws SQLException {
