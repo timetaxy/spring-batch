@@ -4,22 +4,27 @@ import com.example.springbatch.project.batch.domain.ApiInfo;
 import com.example.springbatch.project.batch.domain.ApiRequestVO;
 import com.example.springbatch.project.batch.domain.ApiResponseVO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
 
+@Service
 public abstract class AbstractApiService {
 
     // itemWriter에서 받은값 전달
     public ApiResponseVO service(List<? extends ApiRequestVO> apiRequest) {
 
+        // 중계사업자와 API 연동 작업
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
+
         // restTemplate를 통해 예외처리 발생시 아래 로직 구현
         RestTemplate restTemplate = restTemplateBuilder.errorHandler(new ResponseErrorHandler() {
             @Override
@@ -40,6 +45,7 @@ public abstract class AbstractApiService {
 
         // url,정보 정보 전달
         ApiInfo apiInfo = ApiInfo.builder().apiRequestList(apiRequest).build();
+        HttpEntity<ApiInfo> reqEntity = new HttpEntity<>(apiInfo, httpHeaders);
 
         // 통신
         return doApiService(restTemplate, apiInfo);
