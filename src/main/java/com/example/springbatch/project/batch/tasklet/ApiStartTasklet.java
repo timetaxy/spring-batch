@@ -12,7 +12,9 @@ public class ApiStartTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        System.out.println(" >> ApiService is started");
+        System.out.println("");
+        System.out.println(">> ApiStartTasklet is started");
+        System.out.println("");
 
         return RepeatStatus.FINISHED;
     }

@@ -11,7 +11,13 @@ public class ApiEndTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        System.out.println(" >> ApiService is ended");
+        System.out.println("");
+        System.out.println(">> ApiEndTasklet is started");
+        System.out.println("");
+        System.out.println("******************************************************************************************************************************************************");
+        System.out.println("*                                                               Spring Batch is completed                                                            *");
+        System.out.println("******************************************************************************************************************************************************");
+        System.out.println("");
 
         return RepeatStatus.FINISHED;
     }
